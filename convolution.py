@@ -6,36 +6,47 @@ import math
 
 def main():
     """
-        Filter implemented:
-            - mean
-            - median
-            - gaussian
+
+    In this py program 4 kinds of filters are applied to a noisy image.
+    Filter implemented:
+        - mean
+        - median
+        - gaussian
 
         feature
             - kernel is resizable
     """
     kernel_size = 3
 
-    # mean_image = Convolution("images/monnalisaDisturbed.png", kernel_size)
-    # mean_image.apply_mean_filter(3)
-    # mean_image.save_image('mean')
-    #
-    # median_image = Convolution("images/monnalisaDisturbed.png", kernel_size)
-    # median_image.apply_mean_filter(3)
-    # median_image.save_image('median')
-    #
-    # gaussian_image = Convolution("images/monnalisaDisturbed.png", kernel_size)
-    # gaussian_image.apply_gaussian_filter(1)
-    # gaussian_image.save_image('gaussian')
 
+    # denoise image with different filters
+
+    # mean filter
+    mean_image = Convolution("images/monnalisaDisturbed.png", kernel_size)
+    mean_image.apply_mean_filter(3)
+    mean_image.save_image('mean')
+    
+    # median filter
+    median_image = Convolution("images/monnalisaDisturbed.png", kernel_size)
+    median_image.apply_mean_filter(3)
+    median_image.save_image('median')
+    
+    # gaussian filter
+    gaussian_image = Convolution("images/monnalisaDisturbed.png", kernel_size)
+    gaussian_image.apply_gaussian_filter(1)
+    gaussian_image.save_image('gaussian')
+
+    
+    # bilateral filter
     bilateral_image = Convolution("images/monnalisaDisturbed.png", 21)
     bilateral_image.apply_bilateral(100, 100)
     bilateral_image.save_image('bilateral')
 
 
-
-
 class Convolution:
+    """
+	This class implement the comvolution between a given image and a given filter.
+    """
 
     def __init__(self, img, kernel_size):
         self.kernel_size = kernel_size
@@ -46,11 +57,13 @@ class Convolution:
 
     def load_image(self, relative_path):
         """
-            Load image given the relative path
-            Params:
-                - relative_path: path to image relative to root directory
-            Return:
-                - greyscale image
+
+        Load image given the relative path
+        
+        Args:
+            - relative_path: path to image relative to root directory
+        Return:
+            - greyscale image
         """
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, relative_path)
@@ -64,14 +77,16 @@ class Convolution:
 
     def apply_padding(self, value):
         """
-            Return padded image
-            Params:
-                - image: image to pad
-                - kernel_size: kernel size
-                - value: padding dimension
-            Return:
-                - padded_image: image padded
+        Return padded image
+      
+        Params:
+            - image: image to pad
+            - kernel_size: kernel size
+            - value: padding dimension
+        Return:
+            - padded_image: image padded
         """
+
         image = self.image
         kernel_size = self.kernel_size
         pad = int((kernel_size-1)/2)
@@ -82,13 +97,15 @@ class Convolution:
 
     def save_image(self, name):
         """
-            Save image in current folder/images
-            Params:
-                - image: image to save
-                - name: name of the image
-            Return:
-                none
-        """
+
+        Save image in current folder/images
+
+        Params:
+            - image: image to save
+            - name: name of the image
+        Return:
+            none
+	    """
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, "images/" + name + ".png")
         im = Image.fromarray(self.result).convert('RGB')
@@ -97,12 +114,14 @@ class Convolution:
 
     def apply_median_filter(self, size):
         """
-            Apply median filter
-            Params:
-                - padimg: image padded
-                - size: size of the image
-            Return:
-                - filtered image
+
+        Apply median filter
+
+        Params:
+            - padimg: image padded
+            - size: size of the image
+        Return:
+            - filtered image
         """
         padimg = self.padimag
         pad = int((size - 1) / 2)
@@ -120,12 +139,14 @@ class Convolution:
 
     def generate_gaussian_kernel(self, dim, sigma):
         """
-            Generate gaussian kernel
-            Params:
-                - dim: kernel dimension (it is square)
-                - sigma: sigma value
-            Return:
-                - gaussian kernel
+
+        Generate gaussian kernel
+
+        Params:
+            - dim: kernel dimension (it is square)
+            - sigma: sigma value
+        Return:
+            - gaussian kernel
         """
         kernel = np.ndarray((dim, dim))
         center = int((dim-1)/2)
@@ -150,13 +171,16 @@ class Convolution:
 
     def apply_gaussian_filter(self, sigma):
         """
-            Apply gaussian filter to a give image
-            Params:
-                - padimg: padded image
-                - kernel_size: size of the kernel
-            Return:
-                - filtered image
-        """
+
+        Apply gaussian filter to a give image
+
+        Params:
+            - padimg: padded image
+            - kernel_size: size of the kernel
+        Return:
+            - filtered image
+		"""
+
         padimg = self.padimg
         kernel_size = self.kernel_size
         kernel = self.generate_gaussian_kernel(kernel_size, sigma)
@@ -167,11 +191,13 @@ class Convolution:
 
     def generate_mean_kernel(self, dim):
         """
-            Generate mean kernel
-            Params:
-                - dim: kernel dimension (it is square)
-            Return:
-                - mean kernel
+        
+        Generate mean kernel
+        
+        Params:
+            - dim: kernel dimension (it is square)
+        Return:
+            - mean kernel
         """
         value = 1/(dim**2)
         kernel = np.full((dim, dim), value)
@@ -180,12 +206,14 @@ class Convolution:
 
     def apply_mean_filter(self, kernel_size):
         """
-            Apply mean filter
-            Params:
-                - padimg: padded image
-                - kernel_size: size of the kernel
-            Return:
-                - filtered image
+        
+        Apply mean filter
+
+        Params:
+            - padimg: padded image
+            - kernel_size: size of the kernel
+        Return:
+            - filtered image
         """
         padimg = self.padimg
         kernel = self.generate_mean_kernel(kernel_size)
@@ -227,7 +255,9 @@ class Convolution:
 
     def apply_filter(self, kernel):
         """"
+
         This function computes convolution
+        
         Params:
             - image padded: 2x2 matrix
             - image dim (not padded)
